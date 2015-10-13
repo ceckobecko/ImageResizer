@@ -1,14 +1,23 @@
 <?php
-//require_once(Imagick::class);
-define('PHOTO_DIR', '/home/tsvetan/Documents/pic_folders/');
+
 define('THUMBNAILS_DIRECTORY', __DIR__ . '/thumbnails/');
 define('THUMBNAIL_SIZE_X', 100);
 define('THUMBNAIL_SIZE_Y', 100);
 
+$options = getopt('s:d::');
+$photoDir = null;
+if (isset($options['s'])) {
+    $photoDir = $options['s'];
+} else {
+    $photoDir = print "Error: Please provide at least -s attribute(The source of the images)\r\n";
+    return 0;
+}
+
 function makeThumbnails()
 {
     try {
-        $directoryIterator = new RecursiveDirectoryIterator(getImageDirectory());
+        global $photoDir;
+        $directoryIterator = new RecursiveDirectoryIterator($photoDir);
         $iterator = new RecursiveIteratorIterator($directoryIterator);
         $regexIterator = new RegexIterator($iterator, '/^.+\.jpg/i');
         $thumbnailsDirectory = getThumbnailsDirectory();
@@ -37,22 +46,12 @@ function makeThumbnails()
 
 }
 
-function getImageDirectory()
-{
-    global $argv;
-    $imageDirectory = PHOTO_DIR;
-    if (isset($argv[1])) {
-        $imageDirectory = $argv[1];
-    }
-    return $imageDirectory;
-}
-
 function getThumbnailsDirectory()
 {
-    global $argv;
+    global $options;
     $thumbnailsDirectory = THUMBNAILS_DIRECTORY;
-    if (isset($argv[2])) {
-        $thumbnailsDirectory = $argv[2];
+    if (isset($options["d"])) {
+        $thumbnailsDirectory = $options["d"];
     }
     makeDirectory($thumbnailsDirectory);
     return $thumbnailsDirectory;
